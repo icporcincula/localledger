@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+
+# scratch from development; bench.jsonl and the server logs behind it stay tracked
+results/slots/
+results/t_*.py
+results/t_*.ps1
+results/offline_run.txt
+results/ui*.png
+results/app*.log
+results/app*.err
+results/*.tmp

@@ -1,0 +1,5 @@
+{"test": "multihop", "ok": true, "wall_s": 68.1, "answer": "The spare chlorine cartridges are stored in locker 9 behind the Pellam depot office. The Pellam depot office is staffed by stores clerk Odalys Brenn.\n\nOdalys Brenn can be reached on desk extension 2650-P."}
+{"test": "aggregate", "ok": true, "wall_s": 14.6, "answer": "Harrow Tank capacity is 1200 cubic metres and Lindqvist Tank capacity is 800 cubic metres.\n\nCombined capacity = 1200 + 800 = 2000 cubic metres."}
+{"test": "absent-1", "ok": true, "wall_s": 5.4, "answer": "not in the document"}
+{"test": "absent-2", "ok": true, "wall_s": 4.8, "answer": "not in the document"}
+{"test": "single", "ok": true, "wall_s": 6.0, "answer": "Spare chlorine cartridges are stored in locker 9 behind the Pellam depot office."}
