@@ -51,6 +51,26 @@ All on one machine (RTX 5060 Ti 16 GB, 32 GB RAM, llama.cpp b11753, Q4_K_M), all
 Limits you should know about: the test documents are synthetic, most questions are single-fact lookups
 (only a handful of multi-step and unanswerable ones were tried), and everything was measured on one machine.
 
+## Does a smaller KV cache cost recall?
+
+The KV cache is the model's working memory for the document. Storing it in 8-bit (`q8_0`) or 4-bit (`q4_0`) instead
+of 16-bit (`f16`) saves video memory, so the question is whether it also loses facts. `python -m localledger.recall`
+hides six random codes (like `QX-7316`) in a synthetic document, with look-alike decoys elsewhere in the text, at 5%
+to 95% depth, then asks for each one. A trial passes only if the exact code is in the final answer. Settings:
+`-ngl 44`, 131K context, temperature 0, two different documents per cell, so 12 questions per cell.
+
+| KV cache | 32K tokens | 64K tokens | 124K tokens | Peak video memory |
+|---|---|---|---|---|
+| f16 | 12 / 12 | 12 / 12 | 12 / 12 | 15.2 GB |
+| q8_0 | 12 / 12 | 12 / 12 | 12 / 12 | 14.4 GB |
+| q4_0 | 12 / 12 | 12 / 12 | 12 / 12 | 14.0 GB |
+
+All 108 trials were correct and none ran into the token limit (longest prompt: 116,992 tokens). What that does and
+does not show: on single-code lookups in synthetic text, we found no recall loss from 8-bit or 4-bit caches, and they
+used 0.8 and 1.2 GB less video memory. Because every cell is perfect, this test cannot rank the three; harder
+questions (several facts combined, real documents) could still show a difference. Peak memory includes about 0.7 GB
+the desktop was already using. Raw rows: `results/recall.jsonl`; logs: `results/recall_run.log`.
+
 ## For your IT person
 
 Muse Glimmer 30B at Q4_K_M is a 17 GB file, so it does not fit in 16 GB of video memory together with a
@@ -104,6 +124,16 @@ Raw benchmark rows are in `results/bench.jsonl`.
 The app binds to 127.0.0.1 and makes no outbound requests. The only network call is a one-second socket
 check that drives the "offline" indicator on the page. When you switch between documents, the model's cache
 is parked in `results/slots/` and deleted when the app starts or stops. All test data is synthetic.
+
+## Third-party components
+
+- Muse Glimmer 30B (Meta, open weights), Q4_K_M GGUF. Meta's license terms for the model apply.
+- llama.cpp (MIT), build b11753 with CUDA, runs the model.
+- RFC 7540 (HTTP/2), a public document, used as one of the test documents (`results/rfc7540.txt`).
+- Demo video narration only, not part of the app: Audio8-TTS-Realistic-0.6b (Apache 2.0), an AI voice cloned
+  from the author's own voice. The video says so.
+
+The app itself uses only the Python standard library.
 
 ## Contributors
 

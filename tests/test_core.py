@@ -6,7 +6,7 @@ import urllib.error
 import urllib.request
 from http.server import ThreadingHTTPServer
 
-from localledger import advisor, app, corpus
+from localledger import advisor, app, corpus, recall
 
 
 def row(ngl, kv, tokens, peak, decode, prefill=900.0):
@@ -25,6 +25,29 @@ class Corpus(unittest.TestCase):
 
     def test_same_seed_same_document(self):
         self.assertEqual(corpus.build(2000, seed=5)[0], corpus.build(2000, seed=5)[0])
+
+
+class Recall(unittest.TestCase):
+    def test_every_code_is_planted_once_in_order(self):
+        text, qs = recall.build(3000, seed=1)
+        self.assertEqual(len(qs), len(recall.DEPTHS))
+        last = -1
+        for _, code, _ in qs:
+            self.assertEqual(text.count(code), 1)
+            self.assertGreater(text.index(code), last)
+            last = text.index(code)
+
+    def test_seeds_change_codes_and_same_seed_repeats(self):
+        a, b = recall.build(3000, seed=1), recall.build(3000, seed=2)
+        self.assertNotEqual([c for _, c, _ in a[1]], [c for _, c, _ in b[1]])
+        self.assertEqual(a, recall.build(3000, seed=1))
+
+    def test_summary_counts_passes_per_cell(self):
+        rows = [dict(kv="f16", length="32k", ok=True, finish="stop"),
+                dict(kv="f16", length="32k", ok=False, finish="length")]
+        out = recall.summarize(rows)
+        self.assertIn("1/2", out)
+        self.assertIn("cut off", out)
 
 
 class Advisor(unittest.TestCase):
