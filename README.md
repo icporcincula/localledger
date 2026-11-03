@@ -125,6 +125,24 @@ The app binds to 127.0.0.1 and makes no outbound requests. The only network call
 check that drives the "offline" indicator on the page. When you switch between documents, the model's cache
 is parked in `results/slots/` and deleted when the app starts or stops. All test data is synthetic.
 
+## How the demo video was made
+
+The demo video is also built with tooling in this repo (`video/`), not a screen recorder or a video editor:
+
+- `record_demo.py` drives the real LocalLedger page with Playwright and captures it as a 1920x1080 screencast of
+  the browser page only, so nothing else on the desktop is recorded. Wi-Fi was switched off for the take, and
+  the "Offline" indicator on screen is the app's own. Every answer, quote, page number and timing in the video
+  comes from the live model; none of it is scripted.
+- `tts_audio8.py` clones the author's voice with Audio8-TTS-Realistic-0.6b to narrate the script, and
+  `whisper_check.py` transcribes each clip back and flags any that drifted from the script.
+- `cards.py` renders the title, results and closing cards (the results card reads `results/recall.jsonl`).
+- `mk_scenes.py` holds the script and scene list; `assemble.py` cuts the take to those scenes, labels every
+  sped-up stretch on screen, mixes the narration, burns in subtitles and writes the `.srt`.
+
+The narration is an AI voice, and the video says so. The reference recording of the voice is not included.
+These scripts need Playwright, the Audio8 model (`AUDIO8_MODEL`), openai-whisper and ffmpeg (`FFMPEG`). They are
+for reproducing the video and are not part of the app, which uses only the Python standard library.
+
 ## Third-party components
 
 - Muse Glimmer 30B (Meta, open weights), Q4_K_M GGUF. Meta's license terms for the model apply.
